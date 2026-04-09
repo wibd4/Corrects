@@ -1,0 +1,14 @@
+C:\Users\Administrator\source\repos\Corrects\Corrects\bin\Debug\net10.0\Corrects.exe
+C:\Users\Administrator\source\repos\Corrects\Corrects\bin\Debug\net10.0\Corrects.deps.json
+C:\Users\Administrator\source\repos\Corrects\Corrects\bin\Debug\net10.0\Corrects.runtimeconfig.json
+C:\Users\Administrator\source\repos\Corrects\Corrects\bin\Debug\net10.0\Corrects.dll
+C:\Users\Administrator\source\repos\Corrects\Corrects\bin\Debug\net10.0\Corrects.pdb
+C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\Corrects.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\Corrects.AssemblyInfoInputs.cache
+C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\Corrects.AssemblyInfo.cs
+C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\Corrects.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\Corrects.dll
+C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\refint\Corrects.dll
+C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\Corrects.pdb
+C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\Corrects.genruntimeconfig.cache
+C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\ref\Corrects.dll
