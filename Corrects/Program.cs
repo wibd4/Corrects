@@ -7,14 +7,14 @@ class User
 {
     public string Name { get; set; }
     public string Password { get; set; }
-    public bool Admin {  get; set; }
+    public string Date {  get; set; }
     public string Path { get; set; }
 
-    public User(string name, string password, bool admin, string path)
+    public User(string name, string password, string date, string path)
     {
         Name = name;
         Password = password;
-        Admin = admin;
+        Date = date;
         Path = path;
         saveFile();
     }
@@ -23,7 +23,7 @@ class User
     {
         File.WriteAllText(Path, $"{Name}\n");
         File.AppendAllText(Path, $"{Password}\n");
-        File.AppendAllText(Path, $"{Admin}\n");
+        File.AppendAllText(Path, $"{Date}\n");
     }
 }
 
@@ -78,7 +78,7 @@ class Program
         int user = 0;
         string login = "";
         string answer = "";
-        bool admin = false;
+        string date = "";
         string tmpPath = defaultPath;
         string tmp = "";
         User acc = null;
@@ -102,8 +102,8 @@ class Program
                             tmp = File.ReadLines(tmpPath).Skip(1).First(); // 2 строчка(пароль)
                             if(answer == tmp)
                             {
-                                admin = Convert.ToBoolean(File.ReadLines(tmpPath).Skip(2).First());
-                                acc = new User(login, answer, admin, tmpPath);
+                                date = File.ReadLines(tmpPath).Skip(2).First();
+                                acc = new User(login, answer, date, tmpPath);
                                 accountPath = tmpPath;
                                 File.WriteAllText(lastPath, accountPath);
                                 break;
@@ -127,10 +127,19 @@ class Program
                         login = Console.ReadLine();
                         tmpPath += @$"\users\{login}.txt";
 
+                        if (File.Exists(tmpPath))
+                        {
+                            Console.WriteLine("Такой логин уже существует");
+                            return;
+                        }
+
                         Console.Write("Введите пароль: ");
                         answer = Console.ReadLine();
 
-                        acc = new User(login, answer, admin, tmpPath);
+                        Console.Write("Введите дату рождения: ");
+                        date = Console.ReadLine();
+
+                        acc = new User(login, answer, date, tmpPath);
                         accountPath = tmpPath;
                         File.WriteAllText(lastPath, accountPath);
                         break;
@@ -141,13 +150,25 @@ class Program
         {
             login = File.ReadLines(accountPath).Skip(0).First();
             answer = File.ReadLines(accountPath).Skip(1).First();
-            admin = Convert.ToBoolean(File.ReadLines(accountPath).Skip(2).First());
-            acc = new User(login, answer, admin, accountPath);
+            date = File.ReadLines(accountPath).Skip(2).First();
+            acc = new User(login, answer, date, accountPath);
         }
 
         while (true)
         {
+            Console.WriteLine("1 - Пройти викторину");
+            Console.WriteLine("2 - Посмотреть историю викторин");
+            Console.WriteLine("3 - Топ 20 викторины");
+            Console.WriteLine("4 - Изменить настройки аккаунта");
+            Console.WriteLine("9 - Выход из аккаунта");
+            Console.WriteLine("0 - Выход");
+            Console.Write("");
+            user = Console.Read();
 
+            switch (user)
+            {
+
+            }
         }
     }
 }

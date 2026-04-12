@@ -12,3 +12,4 @@ C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\refint\C
 C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\Corrects.pdb
 C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\Corrects.genruntimeconfig.cache
 C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\ref\Corrects.dll
+C:\Users\Administrator\source\repos\Corrects\Corrects\obj\Debug\net10.0\Corrects.sourcelink.json
