@@ -4,13 +4,17 @@ using System.IO;
 using static System.Net.Mime.MediaTypeNames;
 using System.Diagnostics.Contracts;
 using System.Reflection.Metadata;
+using System.ComponentModel;
 
 class User
 {
+    private bool first = true;
     public string Name { get; set; }
     public string Password { get; set; }
     public string Date {  get; set; }
     public string Path { get; set; }
+
+    public string[] history { get; set; }
 
     public User(string name, string password, string date, string path)
     {
@@ -18,14 +22,30 @@ class User
         Password = password;
         Date = date;
         Path = path;
+
+        if (File.Exists(path))
+        {
+            history = File.ReadAllLines(path);
+            first = false;
+        }
+
         saveFile();
     }
 
     private void saveFile()
     {
-        File.WriteAllText(Path, $"{Name}\n");
-        File.AppendAllText(Path, $"{Password}\n");
-        File.AppendAllText(Path, $"{Date}\n");
+        if (first == true)
+        {
+            File.WriteAllText(Path, $"{Name}\n");
+            File.AppendAllText(Path, $"{Password}\n");
+            File.AppendAllText(Path, $"{Date}\n");
+            first = false;
+        }
+        else
+        {
+            File.WriteAllLines(Path, history);
+        }
+        history = File.ReadAllLines(Path);
     }
 
     public void settings()
@@ -53,6 +73,16 @@ class User
         }
         saveFile();
         return;
+    }
+
+    public void getHistory()
+    {
+        string[] hist = File.ReadAllLines(Path);
+
+        for(int i = 3; i < hist.Length; i++)
+        {
+            Console.WriteLine(hist[i]);
+        }
     }
 }
 
@@ -256,13 +286,16 @@ class Task
         {
             if(Name == Category[i])
             {
+                Console.WriteLine("");
                 Path += @$"\{Category[i]}";
+                int count = 1;
                 foreach(string path in Directory.GetDirectories(Path))
                 {
-                    Console.WriteLine(new DirectoryInfo(path).Name);
+                    Console.WriteLine($"{count} {new DirectoryInfo(path).Name}");
+                    count++;
                 }
                 string user = "";
-                Console.Write("Введите название: ");
+                Console.Write("\nВведите название: ");
                 user = Console.ReadLine();
                 Path += @$"\{user}";
                 if (!File.Exists(Path + @"\task1.txt"))
@@ -379,13 +412,13 @@ class Task
     {
         string userAnswer = "";
 
-        for(int i = 0; i < tasks.Count; i++)
+        for (int i = 0; i < tasks.Count; i++)
         {
             Console.WriteLine($"\nБаллов: {score}");
             Console.Write($"Вопрос {i + 1}: {tasks[i]}\nОтвет: ");
             userAnswer = Console.ReadLine();
 
-            if(userAnswer == answer[i])
+            if (userAnswer == answer[i])
             {
                 score++;
                 Console.WriteLine($"\nВерно!");
@@ -397,7 +430,7 @@ class Task
         }
         int win = Top();
 
-        if(win > 20)
+        if (win > 20)
         {
             Console.WriteLine($"Всего баллов: {score}");
             Console.WriteLine("Ваше место в викторине: 20+");
@@ -407,6 +440,21 @@ class Task
             Console.WriteLine($"Всего баллов: {score}");
             Console.WriteLine($"Ваше место в викторине: {win}");
         }
+
+        string[] userFile = File.ReadAllLines(user.Path);
+
+        string[] newUser = new string[userFile.Length + 1];
+
+        for (int i = 0; i < userFile.Length; i++)
+        {
+            newUser[i] = userFile[i];
+        }
+
+        DirectoryInfo di = new DirectoryInfo(Path);
+
+        newUser[userFile.Length] = $"{Name} {di.Name}";
+
+        File.WriteAllLines(user.Path, newUser);
     }
 }
 class Program
@@ -586,6 +634,7 @@ class Program
                     }
                 case 2:
                     {
+                        acc.getHistory();
                         break;
                     }
                 case 3:
