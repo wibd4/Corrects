@@ -140,7 +140,7 @@ class Task
         Math.Add("Решите уравнение: 2x - 8 = 0. Чему равен x?");
         Math.Add("Сколько градусов в прямом угле?");
         Math.Add("Как называется отрезок, соединяющий центр окружности с точкой на ней?");
-        Math.Add("Чему равна площадь круга, если радиус равен 1 (через Пи)?");
+        Math.Add("Чему равна площадь круга, если радиус равен 1?");
         Math.Add("Как называется результат деления?");
         Math.Add("Сколько будет 15% от 200?");
         Math.Add("Найдите медиану ряда чисел: 1, 3, 5, 7, 9?");
@@ -150,7 +150,7 @@ class Task
         string[] mathAnsw = {
     "25", "12", "3,14", "6", "Равносторонний", "180",
     "2", "24", "Гипотенуза", "1", "4", "90",
-    "Радиус", "Пи", "Частное", "30", "5", "Парабола", "14", "3600"
+    "Радиус", "3,14", "Частное", "30", "5", "Парабола", "14", "3600"
 };
         List<string> Eng = new List<string>();
         Eng.Add("Переведите слово 'Apple' на русский?");
@@ -242,6 +242,14 @@ class Task
         }
     }
 
+    public void getCategory()
+    {
+        for (int i = 0; i < Category.Length; i++)
+        {
+            Console.WriteLine( Category[i] );
+        }
+    }
+
     public void setTask()
     {
         for(int i = 0; i <Category.Length; i++)
@@ -274,9 +282,12 @@ class Task
     public void Top(string QuizPath)
     {
         string[] top = File.ReadAllLines(QuizPath);
-        for (int i = 0; i < top.Length; i++)
+        int j = 1;
+        Console.WriteLine();
+        for (int i = 1; i < top.Length; i+= 2)
         {
-            Console.WriteLine($"{File.ReadLines(QuizPath).Skip(0).First()} {File.ReadLines(QuizPath).Skip(1).First()}");
+            Console.WriteLine($"{j} - {top[i - 1]} {top[i]}");
+            j++;
         }
     }
 
@@ -288,11 +299,6 @@ class Task
 
         string tmpPath = Path + @"\top20.txt";
 
-        if (!File.Exists(tmpPath))
-        {
-            File.WriteAllText(tmpPath, "none");
-        }
-
         minUser = File.ReadAllText(tmpPath);
 
         if (minUser == "none")
@@ -302,9 +308,7 @@ class Task
         }
         else
         {
-            string[] top = File.ReadAllLines(tmpPath);
-            string tmpName = "";
-            int tmpScore = 0;
+            string[] top = File.ReadAllLines(tmpPath); // 40 - максимум
 
             for (int i = 1; i < top.Length; i += 2)
             {
@@ -319,7 +323,7 @@ class Task
             {
                 if (top.Length / 2 < 20)
                 {
-                    string[] newTop = new string[top.Length + 2];
+                    string[] newTop = new string[top.Length + 2]; // создание массива для записи нового человека в топ
                     for (int k = 0; k < top.Length; k++)
                     {
                         newTop[k] = top[k];
@@ -336,6 +340,7 @@ class Task
                     top[index + 1] = Convert.ToString(score);
                 }
 
+                // bubble sort
                 for (int i = 0; i < top.Length; i++)
                 {
                     for (int j = 1; j < top.Length - 2; j += 2)
@@ -353,7 +358,7 @@ class Task
                     }
                 }
 
-                File.WriteAllLines(tmpPath, top);
+                File.WriteAllLines(tmpPath, top); // новый топ в файл
                 for (int i = 0; i < top.Length; i++)
                 {
                     if (top[i] == user.Name)
@@ -406,6 +411,20 @@ class Task
 }
 class Program
 {
+
+    static void CreateBase(string path)
+    {
+        if (!Directory.Exists(path + @"\users"))
+        {
+            Directory.CreateDirectory(path + @"\users");
+        }
+
+        if(!Directory.Exists(path + @"\tasks"))
+        {
+            Directory.CreateDirectory(path + @"\tasks");
+        }
+    }
+
     static public void Start(ref string defaultPath, ref string fullPath, ref string accountPath, ref string lastPath)
     {
         try
@@ -419,6 +438,7 @@ class Program
             {
                 Console.Write("Введите путь, куда сохранять файлы: ");
                 defaultPath = Console.ReadLine();
+                CreateBase(defaultPath);
                 File.WriteAllText(fullPath, defaultPath); // запись директории сохранения файлов
             }
         }
@@ -426,6 +446,7 @@ class Program
         {
             Console.Write("Введите путь, куда сохранять файлы: ");
             defaultPath = Console.ReadLine();
+            CreateBase(defaultPath);
             File.WriteAllText(fullPath, defaultPath);
         }
 
@@ -535,7 +556,7 @@ class Program
 
         while (true)
         {
-            Console.WriteLine("1 - Пройти викторину");
+            Console.WriteLine("\n1 - Пройти викторину");
             Console.WriteLine("2 - Посмотреть историю викторин");
             Console.WriteLine("3 - Топ 20 викторины");
             Console.WriteLine("4 - Изменить настройки аккаунта");
@@ -563,6 +584,45 @@ class Program
                     }
                 case 3:
                     {
+                        Console.WriteLine("\nВведите категорию");
+                        Service.getCategory();
+
+                        Console.Write("");
+                        tmp = Console.ReadLine();
+                        tmpPath = defaultPath + @"\tasks\" + tmp;
+
+                        if (!Directory.Exists(tmpPath))
+                        {
+                            Console.WriteLine("Такой категории не существует.");
+                            break;
+                        }
+                        Console.WriteLine("\nВведите викторину");
+
+                        string[] DirPath = Directory.GetDirectories(tmpPath);
+
+                        for (int i = 0; i < DirPath.Length; i++)
+                        {
+                            Console.WriteLine(Path.GetFileName(DirPath[i]));
+                        }
+                        Console.Write("");
+                        tmp = Console.ReadLine();
+                        tmpPath += @"\" + tmp;
+
+                        if (!Directory.Exists(tmpPath))
+                        {
+                            Console.WriteLine("Такой викторины не существует.");
+                            break;
+                        }
+                        tmpPath += @"\top20.txt";
+
+                        if (!File.Exists(tmpPath))
+                        {
+                            Console.WriteLine("Такой викторины не существует 2.");
+                            break;
+                        }
+
+                        Service.Top(tmpPath);
+
                         break;
                     }
                 case 4:
