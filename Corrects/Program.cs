@@ -175,7 +175,7 @@ class Task
         Eng.Add("Переведите слово 'Friend'?");
         string[] engAnsw = {
     "Яблоко", "Went", "Book", "Small", "Привет", "Children",
-    "Я есть", "Dog", "Done", "Зеленый", "Teacher", "Thanks",
+    "Я", "Dog", "Done", "Зеленый", "Teacher", "Thanks",
     "He", "Вода", "Blue", "Seven", "Mother", "Стол", "Yes", "Друг"
 };
 
@@ -573,7 +573,13 @@ class Program
                     }
                 case 1:
                     {
-                        Task task = new Task("Math", defaultPath, acc);
+                        Console.WriteLine("\nВведите категорию");
+                        Service.getCategory();
+
+                        Console.Write("");
+                        tmp = Console.ReadLine();
+
+                        Task task = new Task(tmp, defaultPath, acc);
                         task.setTask();
                         task.Run();
                         break;
