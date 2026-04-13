@@ -27,6 +27,33 @@ class User
         File.AppendAllText(Path, $"{Password}\n");
         File.AppendAllText(Path, $"{Date}\n");
     }
+
+    public void settings()
+    {
+        Console.WriteLine("1 - Изменить пароль.");
+        Console.WriteLine("2 - Изменить дату рождения.");
+        Console.WriteLine("0 - Отмена");
+        int user = 0;
+
+        Console.Write("");
+        user = Convert.ToInt32(Console.ReadLine());
+        if(user == 1)
+        {
+            Console.Write("Напишите новый пароль: ");
+            Password = Console.ReadLine();
+        }
+        else if(user == 2)
+        {
+            Console.Write("Напишите новую дату: ");
+            Date = Console.ReadLine();
+        }
+        else
+        {
+            return;
+        }
+        saveFile();
+        return;
+    }
 }
 
 class Task
@@ -35,32 +62,41 @@ class Task
     public string Name { get; set; }
     public string Path { get; set; }
 
-    public Task(string name, string path)
+    public int score { get; set; }
+
+    private List<string> tasks = new List<string>();
+    private string[] answer = new string[20];
+
+    private User user { get; set; }
+
+    public Task(string name, string path, User user)
     {
         Name = name;
-        Path += path + @$"\tasks";
+        Path = path + @$"\tasks";
+        score = 0;
+        this.user = user;
         Create();
     }
 
     private void Create()
     {
         string tmpPath = Path;
-
+        // создание директорий под викторины
         if (!Directory.Exists(tmpPath))
         {
             Directory.CreateDirectory(tmpPath);
         }
-
+        // создание директорий под все категории
         for (int i = 0; i < Category.Length; i++)
         {
             tmpPath += @$"\{Category[i]}";
-            if (!Directory.Exists(Path))
+            if (!Directory.Exists(tmpPath))
             {
                 Directory.CreateDirectory(tmpPath);
             }
             tmpPath = Path;
         }
-        
+        // базовые вопросы/категории
         List<string> History = new List<string>();
         History.Add("В каком году Германия объявила войну Польше?");
         History.Add("Как назывался альянс, основанный Германией?");
@@ -142,8 +178,11 @@ class Task
     "Я есть", "Dog", "Done", "Зеленый", "Teacher", "Thanks",
     "He", "Вода", "Blue", "Seven", "Mother", "Стол", "Yes", "Друг"
 };
+
+        // заполнение базовых категорий
         tmpPath = Path;
         tmpPath += @$"\{Category[0]}";
+
         if (!Directory.Exists(tmpPath))
         {
             Directory.CreateDirectory(tmpPath);
@@ -156,6 +195,10 @@ class Task
         for (int i = 0; i < histAnsw.Length; i++)
         {
             File.WriteAllText(tmpPath + @$"\task{i + 1}.txt", $"{History[i]}\n{histAnsw[i]}");
+        }
+        if (!File.Exists(tmpPath + @"\top20.txt"))
+        {
+            File.WriteAllText(tmpPath + @"\top20.txt", "none");
         }
 
         tmpPath = Path;
@@ -173,6 +216,10 @@ class Task
         {
             File.WriteAllText(tmpPath + @$"\task{i + 1}.txt", $"{Math[i]}\n{mathAnsw[i]}");
         }
+        if (!File.Exists(tmpPath + @"\top20.txt"))
+        {
+            File.WriteAllText(tmpPath + @"\top20.txt", "none");
+        }
 
         tmpPath = Path;
         tmpPath += @$"\{Category[2]}";
@@ -189,22 +236,172 @@ class Task
         {
             File.WriteAllText(tmpPath + @$"\task{i + 1}.txt", $"{Eng[i]}\n{engAnsw[i]}");
         }
+        if (!File.Exists(tmpPath + @"\top20.txt"))
+        {
+            File.WriteAllText(tmpPath + @"\top20.txt", "none");
+        }
     }
 
     public void setTask()
     {
-        int user;
-        string tmpPath = Path;
-        Console.WriteLine("Выберете категории\n");
-        for(int i = 0; i < Category.Length; i++)
+        for(int i = 0; i <Category.Length; i++)
         {
-            Console.WriteLine($"{i + 1} - {Category[i]}");
+            if(Name == Category[i])
+            {
+                Path += @$"\{Category[i]}";
+                foreach(string path in Directory.GetDirectories(Path))
+                {
+                    Console.WriteLine(new DirectoryInfo(path).Name);
+                }
+                string user = "";
+                Console.Write("Введите название: ");
+                user = Console.ReadLine();
+                Path += @$"\{user}";
+                if (!File.Exists(Path + @"\task1.txt"))
+                {
+                    Console.WriteLine("Задания не существует.");
+                    return;
+                }
+                for(int j = 0; j < 20; j++) // заполнение вопросов и ответов
+                {
+                    tasks.Add(Convert.ToString(File.ReadLines(Path + @$"\task{j + 1}.txt").Skip(0).First()));
+                    answer[j] = Convert.ToString(File.ReadLines(Path + @$"\task{j + 1}.txt").Skip(1).First());
+                }
+            }
         }
-        Console.Write("");
-        user = Console.Read();
-        tmpPath += @$"\{Category[user - 1]}";
+    }
 
+    public void Top(string QuizPath)
+    {
+        string[] top = File.ReadAllLines(QuizPath);
+        for (int i = 0; i < top.Length; i++)
+        {
+            Console.WriteLine($"{File.ReadLines(QuizPath).Skip(0).First()} {File.ReadLines(QuizPath).Skip(1).First()}");
+        }
+    }
 
+    public int Top()
+    {
+        string minUser = "";
+        int min = 0;
+        int index = 0;
+
+        string tmpPath = Path + @"\top20.txt";
+
+        if (!File.Exists(tmpPath))
+        {
+            File.WriteAllText(tmpPath, "none");
+        }
+
+        minUser = File.ReadAllText(tmpPath);
+
+        if (minUser == "none")
+        {
+            File.WriteAllText(tmpPath, $"{user.Name}\n{score}");
+            return 1;
+        }
+        else
+        {
+            string[] top = File.ReadAllLines(tmpPath);
+            string tmpName = "";
+            int tmpScore = 0;
+
+            for (int i = 1; i < top.Length; i += 2)
+            {
+                if (min > Convert.ToInt32(top[i]))
+                {
+                    min = Convert.ToInt32(top[i]);
+                    index = i - 1;
+                    minUser = top[i - 1];
+                }
+            }
+            if (score > min || top.Length / 2 < 20)
+            {
+                if (top.Length / 2 < 20)
+                {
+                    string[] newTop = new string[top.Length + 2];
+                    for (int k = 0; k < top.Length; k++)
+                    {
+                        newTop[k] = top[k];
+                    }
+
+                    newTop[top.Length] = user.Name;
+                    newTop[top.Length + 1] = score.ToString();
+                    top = newTop;
+                    index = top.Length - 2;
+                }
+                else
+                {
+                    top[index] = user.Name;
+                    top[index + 1] = Convert.ToString(score);
+                }
+
+                for (int i = 0; i < top.Length; i++)
+                {
+                    for (int j = 1; j < top.Length - 2; j += 2)
+                    {
+                        if (Convert.ToInt32(top[j]) < Convert.ToInt32(top[j + 2]))
+                        {
+                            string tempScore = top[j];
+                            top[j] = top[j + 2];
+                            top[j + 2] = tempScore;
+
+                            string tempName = top[j - 1];
+                            top[j - 1] = top[j + 1];
+                            top[j + 1] = tempName;
+                        }
+                    }
+                }
+
+                File.WriteAllLines(tmpPath, top);
+                for (int i = 0; i < top.Length; i++)
+                {
+                    if (top[i] == user.Name)
+                    {
+                        return (i / 2) + 1;
+                    }
+                }
+            }
+            else
+            {
+                return 21;
+            }
+            return -1;
+        }
+    }
+
+    public void Run()
+    {
+        string userAnswer = "";
+
+        for(int i = 0; i < tasks.Count; i++)
+        {
+            Console.WriteLine($"\nБаллов: {score}");
+            Console.Write($"Вопрос {i + 1}: {tasks[i]}\nОтвет: ");
+            userAnswer = Console.ReadLine();
+
+            if(userAnswer == answer[i])
+            {
+                score++;
+                Console.WriteLine($"\nВерно!");
+            }
+            else
+            {
+                Console.WriteLine($"\nНеверно, правильный ответ: {answer[i]}");
+            }
+        }
+        int win = Top();
+
+        if(win > 20)
+        {
+            Console.WriteLine($"Всего баллов: {score}");
+            Console.WriteLine("Ваше место в викторине: 20+");
+        }
+        else
+        {
+            Console.WriteLine($"Всего баллов: {score}");
+            Console.WriteLine($"Ваше место в викторине: {win}");
+        }
     }
 }
 class Program
@@ -334,22 +531,50 @@ class Program
             acc = new User(login, answer, date, accountPath);
         }
 
+        Task Service = new Task("def", defaultPath, acc);
+
         while (true)
         {
             Console.WriteLine("1 - Пройти викторину");
             Console.WriteLine("2 - Посмотреть историю викторин");
             Console.WriteLine("3 - Топ 20 викторины");
             Console.WriteLine("4 - Изменить настройки аккаунта");
-            Console.WriteLine("9 - Выход из аккаунта");
+            Console.WriteLine("5 - Выход из аккаунта");
             Console.WriteLine("0 - Выход");
             Console.Write("");
-            user = Console.Read();
-
-            Task task = new Task("Math", defaultPath);
+            user = Convert.ToInt32(Console.ReadLine());
 
             switch (user)
             {
-
+                case 0:
+                    {
+                        return;
+                    }
+                case 1:
+                    {
+                        Task task = new Task("Math", defaultPath, acc);
+                        task.setTask();
+                        task.Run();
+                        break;
+                    }
+                case 2:
+                    {
+                        break;
+                    }
+                case 3:
+                    {
+                        break;
+                    }
+                case 4:
+                    {
+                        acc.settings();
+                        break;
+                    }
+                case 5:
+                    {
+                        File.WriteAllText(lastPath, "none");
+                        return;
+                    }
             }
         }
     }
