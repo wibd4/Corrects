@@ -102,7 +102,7 @@ class User
 
 class Task
 {
-    public string[] Category { get; set; } = { "History", "Math", "Eng" };
+    public List<string> Category = new List<string>();
     public string Name { get; set; }
     public string Path { get; set; }
 
@@ -119,20 +119,32 @@ class Task
         Path = path + @$"\tasks";
         score = 0;
         this.user = user;
+        Category.Add("History");
+        Category.Add("Math");
+        Category.Add("Eng");
+
         Create();
     }
 
     private void Create()
     {
         string tmpPath = Path;
-        // создание директорий под викторины
+
         if (!Directory.Exists(tmpPath))
         {
             Directory.CreateDirectory(tmpPath);
         }
 
+        List<string> categories = new List<string>();
+
+        if (Directory.Exists(tmpPath)) // записываем категории в лист
+        {
+            categories = Directory.GetDirectories(tmpPath).Select(d => new DirectoryInfo(d).Name).ToList();
+            Category = categories;
+        }
+
         // создание директорий под все категории
-        for (int i = 0; i < Category.Length; i++)
+        for (int i = 0; i < Category.Count; i++)
         {
             tmpPath += @$"\{Category[i]}";
             if (!Directory.Exists(tmpPath))
@@ -226,7 +238,7 @@ class Task
 
         // заполнение базовых категорий
         tmpPath = Path;
-        tmpPath += @$"\{Category[0]}";
+        tmpPath += @$"\History";
 
         if (!Directory.Exists(tmpPath))
         {
@@ -247,7 +259,7 @@ class Task
         }
 
         tmpPath = Path;
-        tmpPath += @$"\{Category[1]}";
+        tmpPath += @$"\Math";
         if (!Directory.Exists(tmpPath))
         {
             Directory.CreateDirectory(tmpPath);
@@ -267,7 +279,7 @@ class Task
         }
 
         tmpPath = Path;
-        tmpPath += @$"\{Category[2]}";
+        tmpPath += @$"\Eng";
         if (!Directory.Exists(tmpPath))
         {
             Directory.CreateDirectory(tmpPath);
@@ -289,7 +301,7 @@ class Task
 
     public void getCategory()
     {
-        for (int i = 0; i < Category.Length; i++)
+        for (int i = 0; i < Category.Count; i++)
         {
             Console.WriteLine( Category[i] );
         }
@@ -297,7 +309,7 @@ class Task
 
     public void setTask()
     {
-        for(int i = 0; i <Category.Length; i++)
+        for(int i = 0; i <Category.Count; i++)
         {
             if(Name == Category[i])
             {
@@ -487,7 +499,7 @@ class Task
         while (exit == false)
         {
             // проходим по всем директириям и записываем вопросы
-            for (int i = 0; i < Category.Length; i++)
+            for (int i = 0; i < Category.Count; i++)
             {
                 tmpPath = Path + @$"\{Category[i]}";
                 foreach (string quizPath in Directory.GetDirectories(tmpPath))
