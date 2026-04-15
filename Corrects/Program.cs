@@ -14,6 +14,8 @@ class User
     public string Date {  get; set; }
     public string Path { get; set; }
 
+    public bool Admin {  get; set; }
+
     public string[] history { get; set; }
 
     public User(string name, string password, string date, string path)
@@ -22,6 +24,7 @@ class User
         Password = password;
         Date = date;
         Path = path;
+        Admin = false;
 
         if (File.Exists(path))
         {
@@ -39,6 +42,7 @@ class User
             File.WriteAllText(Path, $"{Name}\n");
             File.AppendAllText(Path, $"{Password}\n");
             File.AppendAllText(Path, $"{Date}\n");
+            File.AppendAllText(Path, $"{Admin}\n");
             first = false;
         }
         else
@@ -79,16 +83,26 @@ class User
     {
         string[] hist = File.ReadAllLines(Path);
 
-        for(int i = 3; i < hist.Length; i++)
+        for(int i = 4; i < hist.Length; i++)
         {
             Console.WriteLine(hist[i]);
         }
+    }
+
+    public void Create()
+    {
+        if(!Admin)
+        {
+            return;
+        }
+
+
     }
 }
 
 class Task
 {
-    public string[] Category { get; } = { "History", "Math", "Eng" };
+    public string[] Category { get; set; } = { "History", "Math", "Eng" };
     public string Name { get; set; }
     public string Path { get; set; }
 
@@ -116,6 +130,7 @@ class Task
         {
             Directory.CreateDirectory(tmpPath);
         }
+
         // создание директорий под все категории
         for (int i = 0; i < Category.Length; i++)
         {
@@ -309,6 +324,10 @@ class Task
                     answer[j] = Convert.ToString(File.ReadLines(Path + @$"\task{j + 1}.txt").Skip(1).First());
                 }
             }
+            else if(Name == "Random Quiz")
+            {
+                CreateRandom();
+            }
         }
     }
 
@@ -452,7 +471,101 @@ class Task
 
         DirectoryInfo di = new DirectoryInfo(Path);
 
-        newUser[userFile.Length] = $"{Name} {di.Name}";
+        newUser[userFile.Length] = $"{Name} {di.Name} {score}";
+
+        File.WriteAllLines(user.Path, newUser);
+    }
+
+    private void CreateRandom()
+    {
+        string tmpPath = "";
+
+        Random rnd = new Random();
+        
+        int num = 0;
+        bool exit = false;
+        while (exit == false)
+        {
+            // проходим по всем директириям и записываем вопросы
+            for (int i = 0; i < Category.Length; i++)
+            {
+                tmpPath = Path + @$"\{Category[i]}";
+                foreach (string quizPath in Directory.GetDirectories(tmpPath))
+                {
+                    for (int j = 1; j <= 20; j++)
+                    {
+                        if (rnd.Next(5) == 4 && tasks.Count < 10)
+                        {
+                            string taskFile = quizPath + @$"\task{j}.txt";
+                            tasks.Add(File.ReadLines(taskFile).Skip(0).First());
+                            answer[num] = File.ReadLines(taskFile).Skip(1).First();
+                            num++;
+                        }
+                    }
+                }
+            }
+            if (tasks.Count >= 10)
+            {
+                List<string> uniqueTasks = new List<string>();
+                string[] uniqueAnswers = new string[20];
+
+                for (int i = 0; i < tasks.Count; i++)
+                {
+                    if (!uniqueTasks.Contains(tasks[i])) // удаление одинаковыз вопросов
+                    {
+                        uniqueTasks.Add(tasks[i]);
+                        uniqueAnswers[i] = answer[i];
+                    }
+                }
+
+                tasks = uniqueTasks;
+                answer = uniqueAnswers;
+
+                if (tasks.Count >= 10)
+                {
+                    exit = true;
+                }
+                else
+                {
+                    num = tasks.Count;
+                }
+            }
+        }
+    }
+
+    public void RunRandon()
+    {
+        string userAnswer = "";
+
+        for (int i = 0; i < tasks.Count; i++)
+        {
+            Console.WriteLine($"\nБаллов: {score}");
+            Console.Write($"Вопрос {i + 1}: {tasks[i]}\nОтвет: ");
+            userAnswer = Console.ReadLine();
+
+            if (userAnswer == answer[i])
+            {
+                score++;
+                Console.WriteLine($"\nВерно!");
+            }
+            else
+            {
+                Console.WriteLine($"\nНеверно, правильный ответ: {answer[i]}");
+            }
+        }
+
+        Console.WriteLine($"Всего баллов: {score}");
+
+        string[] userFile = File.ReadAllLines(user.Path);
+
+        string[] newUser = new string[userFile.Length + 1];
+
+        for (int i = 0; i < userFile.Length; i++)
+        {
+            newUser[i] = userFile[i];
+        }
+
+        newUser[userFile.Length] = $"{Name} {score}";
 
         File.WriteAllLines(user.Path, newUser);
     }
@@ -608,7 +721,8 @@ class Program
             Console.WriteLine("2 - Посмотреть историю викторин");
             Console.WriteLine("3 - Топ 20 викторины");
             Console.WriteLine("4 - Изменить настройки аккаунта");
-            Console.WriteLine("5 - Выход из аккаунта");
+            Console.WriteLine("5 - Пройти случайную викторину");
+            Console.WriteLine("6 - Выход из аккаунта");
             Console.WriteLine("0 - Выход");
             Console.Write("");
             user = Convert.ToInt32(Console.ReadLine());
@@ -685,7 +799,14 @@ class Program
                         acc.settings();
                         break;
                     }
-                case 5:
+                case 5: 
+                    {
+                        Task task = new Task("Random Quiz", defaultPath, acc);
+                        task.setTask();
+                        task.RunRandon();
+                        break;
+                    }
+                case 6:
                     {
                         File.WriteAllText(lastPath, "none");
                         return;
